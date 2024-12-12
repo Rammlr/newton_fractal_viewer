@@ -38,14 +38,14 @@ vec3 newton_fractal(vec2 z) {
 
     for (int i = 0; i < u_iterations; i++) {
         z -= cdiv(z_3(z), dz_3(z));
-            for (int i = 0; i < ROOTS_SIZE; i++) {
-                vec2 difference = z - roots[i];
+        for (int i = 0; i < ROOTS_SIZE; i++) {
+            vec2 difference = z - roots[i];
 
-                if (length(difference) < u_tolerance)
-                {
-                    return colors[i] * (1. - float(i) / float(u_iterations)); // brightness depending on convergence speed
-                }
+            if (length(difference) < u_tolerance)
+            {
+                return colors[i] * (1. - float(i) / float(u_iterations)); // brightness depending on convergence speed
             }
+        }
     }
 
     return vec3(0.0);
