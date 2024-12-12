@@ -1,6 +1,8 @@
 import * as THREE from 'three';
-import fragmentShader from './shaders/shader.frag';
+import { GUI } from 'dat.gui';
+import fragmentShader from './shaders/newton_hardcoded.frag';
 import vertexShader from './shaders/shader.vert';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 const TIME_SPEED = 0.05;
 const SCROLL_SPEED = 0.005;
@@ -17,13 +19,15 @@ camera.position.z = 1;
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+const canvas = renderer.domElement;
+document.body.appendChild(canvas);
 
 let uniforms = {
     u_resolution: {value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
     u_scroll: {value: 1.0},
     u_translate: {value: new THREE.Vector2(0.0, 0.0)},
     u_time: {value: 0.0},
+    u_iterations: {value: 50},
 }
 
 const material = new THREE.ShaderMaterial({
@@ -44,23 +48,23 @@ window.addEventListener('resize', () => {
 
 let scrollTarget = uniforms.u_scroll.value;
 
-document.addEventListener('wheel', (event: WheelEvent) => {
+canvas.addEventListener('wheel', (event: WheelEvent) => {
     scrollTarget += event.deltaY * SCROLL_SPEED;
 });
 
 let dragging = false;
 let lastDragPos = new THREE.Vector2(0, 0);
 
-document.addEventListener('mousedown', (event: MouseEvent) => {
+canvas.addEventListener('mousedown', (event: MouseEvent) => {
     dragging = true;
     lastDragPos = new THREE.Vector2(event.x / window.innerWidth, event.y / window.innerHeight);
 });
 
-document.addEventListener('mouseup', () => {
+canvas.addEventListener('mouseup', () => {
     dragging = false;
 });
 
-document.addEventListener('mousemove', (event: MouseEvent) => {
+canvas.addEventListener('mousemove', (event: MouseEvent) => {
     if (!dragging) return;
     const position = new THREE.Vector2(event.x / window.innerWidth, event.y / window.innerHeight);
     const diff = position.sub(lastDragPos);
@@ -71,11 +75,20 @@ document.addEventListener('mousemove', (event: MouseEvent) => {
     uniforms.u_translate.value.add(diff.multiply(DRAG_SPEED));
 });
 
+const gui = new GUI()
+const iterationParams = gui.addFolder('Iterations')
+iterationParams.add(uniforms.u_iterations, 'value', 1, 100);
+iterationParams.open()
+
+const stats = new Stats()
+document.body.appendChild(stats.dom)
+
 function animate() {
     requestAnimationFrame(animate);
     uniforms.u_time.value += TIME_SPEED;
     uniforms.u_scroll.value += (scrollTarget - uniforms.u_scroll.value) * LERP_FACTOR;
     renderer.render(scene, camera);
+    stats.update()
 }
 
 animate();
