@@ -3,6 +3,8 @@
 A THREE.js based fractal viewer for rendering Newton fractals in real-time.
 Still **WIP** so lots of features to come.
 
+![newton_fractal_demo.gif](newton_fractal_demo.gif)
+
 ## 🛠️ **Features** 🛠️
 
 ### ✅ **Implemented**
