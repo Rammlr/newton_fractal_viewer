@@ -4,10 +4,12 @@ import fragmentShader from './shaders/newton_hardcoded.frag';
 import vertexShader from './shaders/shader.vert';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
+const aspectRatio = window.innerWidth / window.innerHeight;
+
 const TIME_SPEED = 0.05;
 const SCROLL_SPEED = 0.005;
 const DRAG_SPEED_X = -1.0;
-const DRAG_SPEED_Y = 1.0;
+const DRAG_SPEED_Y = -DRAG_SPEED_X / aspectRatio;
 const LERP_FACTOR = 0.025;
 
 const scene = new THREE.Scene();
@@ -28,6 +30,7 @@ let uniforms = {
     u_translate: {value: new THREE.Vector2(0.0, 0.0)},
     u_time: {value: 0.0},
     u_iterations: {value: 50},
+    u_tolerance: {value: 0.001},
 }
 
 const material = new THREE.ShaderMaterial({
@@ -64,21 +67,44 @@ canvas.addEventListener('mouseup', () => {
     dragging = false;
 });
 
-canvas.addEventListener('mousemove', (event: MouseEvent) => {
-    if (!dragging) return;
-    const position = new THREE.Vector2(event.x / window.innerWidth, event.y / window.innerHeight);
+function updateTranslate(x: number, y: number) {
+    const position = new THREE.Vector2(x / window.innerWidth, y / window.innerHeight);
     const diff = position.sub(lastDragPos);
-    lastDragPos = new THREE.Vector2(event.x / window.innerWidth, event.y / window.innerHeight);
+    lastDragPos = new THREE.Vector2(x / window.innerWidth, y / window.innerHeight);
 
     const zoomFactor = Math.exp(uniforms.u_scroll.value);
     const DRAG_SPEED = new THREE.Vector2(DRAG_SPEED_X, DRAG_SPEED_Y).multiplyScalar(zoomFactor);
     uniforms.u_translate.value.add(diff.multiply(DRAG_SPEED));
+}
+
+canvas.addEventListener('mousemove', (event: MouseEvent) => {
+    if (!dragging) return;
+    updateTranslate(event.x, event.y);
+});
+
+canvas.addEventListener('touchstart', (event: TouchEvent) => {
+    if (event.touches.length === 1) {
+        const touch = event.touches[0];
+        lastDragPos = new THREE.Vector2(touch.clientX / window.innerWidth, touch.clientY / window.innerHeight);
+    }
+});
+
+canvas.addEventListener('touchmove', (event: TouchEvent) => {
+    if (event.touches.length === 1) {
+        const touch = event.touches[0];
+        updateTranslate(touch.clientX, touch.clientY);
+    }
 });
 
 const gui = new GUI()
-const iterationParams = gui.addFolder('Iterations')
-iterationParams.add(uniforms.u_iterations, 'value', 1, 100);
+const iterationParams = gui.addFolder('Iteration Parameters')
+iterationParams.add(uniforms.u_iterations, 'value', 1, 100).name('Iterations');
+iterationParams.add(uniforms.u_tolerance, 'value', 0.0001, 1).name('Tolerance');
 iterationParams.open()
+// TODO: color parameters
+// const customizationParams = gui.addFolder('Customization')
+// customizationParams.add(uniforms.u_resolution.value, 'x', 1, 1920).name('Resolution X');
+// customizationParams.open()
 
 const stats = new Stats()
 document.body.appendChild(stats.dom)

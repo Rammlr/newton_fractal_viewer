@@ -9,6 +9,7 @@ uniform float u_scroll;
 uniform vec2 u_translate;
 uniform float u_time;
 uniform int u_iterations;
+uniform float u_tolerance;
 
 vec2 cpow(vec2 z, int n) {
     vec2 result = vec2(1.0, 0.0);
@@ -32,7 +33,6 @@ vec2 dz_3(vec2 z)
 
 vec3 newton_fractal(vec2 z) {
     const int ROOTS_SIZE = 3;
-    const float TOLERANCE = 0.001;
     vec2 roots[ROOTS_SIZE] = vec2[](vec2(1., 0.), vec2(-.5, sqrt(3.) / 2.), vec2(-.5, -sqrt(3.) / 2.));
     vec3 colors[ROOTS_SIZE] = vec3[](vec3(1., 0., 0.), vec3(0., 1., 0.), vec3(0., 0., 1.));
 
@@ -41,7 +41,7 @@ vec3 newton_fractal(vec2 z) {
             for (int i = 0; i < ROOTS_SIZE; i++) {
                 vec2 difference = z - roots[i];
 
-                if (length(difference) < TOLERANCE)
+                if (length(difference) < u_tolerance)
                 {
                     return colors[i] * (1. - float(i) / float(u_iterations)); // brightness depending on convergence speed
                 }
@@ -52,8 +52,12 @@ vec3 newton_fractal(vec2 z) {
 }
 
 void main() {
-    vec2 st = gl_FragCoord.xy / u_resolution;
-    st -= 0.5;
+    // this is a bit of a workaround to make the fractal cropped instead of stretched depending on window resolution
+    float minRes = min(u_resolution.x, u_resolution.y);
+    vec2 st = gl_FragCoord.xy / vec2(minRes, minRes);
+    // centering the coordinates
+    st -= vec2(u_resolution.x / minRes, u_resolution.y / minRes) * 0.5;
+
     float zoom_factor = exp(u_scroll);
     st *= zoom_factor;
     st += u_translate;

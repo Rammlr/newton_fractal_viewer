@@ -1,21 +1,20 @@
 # 🌟 **Newton Fractal Viewer** 🌟
 
 
-This is still very much a **WIP** but this is going to be a THREE.js based viewer for Newton fractals.
-With Infinite zooming and panning capabilities. As of now there is only a single mandelbrot set for testing purposes but that will be changed soon.
+A THREE.js based fractal viewer for rendering Newton fractals in real-time.
+Still **WIP** so lots of features to come.
 
 ## 🛠️ **Features** 🛠️
 
 ### ✅ **Implemented**
 - **Interactive Zooming and Panning**🔎
 - **Real-Time Rendering** 🚀
-- **Mandelbrot Set for testing purposes** 🌀
+- **Hardcoded Newton Fractal** 🌀
+- **Customizable Iteration Parameters** 📊
 
 ### 📝 **Planned**
-- **Newton Fractal Rendering** 🌀
-- **Customizable Parameters such as**: 
+- **More Customizable Parameters such as**: 
   - Color schemes 🌈
-  - iteration limits 🔢
   - polynomial functions ➗.
 
 ## 🚀 **Usage** 🚀
