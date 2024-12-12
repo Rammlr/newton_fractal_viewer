@@ -1,15 +1,11 @@
 import * as THREE from 'three';
-import { GUI } from 'dat.gui';
 import fragmentShader from './shaders/newton_hardcoded.frag';
 import vertexShader from './shaders/shader.vert';
-import Stats from 'three/examples/jsm/libs/stats.module.js';
-
-const aspectRatio = window.innerWidth / window.innerHeight;
+import {createGUI} from "./gui.ts";
+import {addControls, getDistanceBetweenTouches} from "./controls.ts";
 
 const TIME_SPEED = 0.05;
 const SCROLL_SPEED = 0.005;
-const DRAG_SPEED_X = -1.0;
-const DRAG_SPEED_Y = -DRAG_SPEED_X / aspectRatio;
 const LERP_FACTOR = 0.025;
 
 const scene = new THREE.Scene();
@@ -46,68 +42,39 @@ scene.add(mesh);
 
 window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
-    material.uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
+    uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
 });
 
+addControls(canvas, uniforms);
+
+// scroll logic has to be in here because of lerping in the render loop
 let scrollTarget = uniforms.u_scroll.value;
 
 canvas.addEventListener('wheel', (event: WheelEvent) => {
     scrollTarget += event.deltaY * SCROLL_SPEED;
 });
 
-let dragging = false;
-let lastDragPos = new THREE.Vector2(0, 0);
-
-canvas.addEventListener('mousedown', (event: MouseEvent) => {
-    dragging = true;
-    lastDragPos = new THREE.Vector2(event.x / window.innerWidth, event.y / window.innerHeight);
-});
-
-canvas.addEventListener('mouseup', () => {
-    dragging = false;
-});
-
-function updateTranslate(x: number, y: number) {
-    const position = new THREE.Vector2(x / window.innerWidth, y / window.innerHeight);
-    const diff = position.sub(lastDragPos);
-    lastDragPos = new THREE.Vector2(x / window.innerWidth, y / window.innerHeight);
-
-    const zoomFactor = Math.exp(uniforms.u_scroll.value);
-    const DRAG_SPEED = new THREE.Vector2(DRAG_SPEED_X, DRAG_SPEED_Y).multiplyScalar(zoomFactor);
-    uniforms.u_translate.value.add(diff.multiply(DRAG_SPEED));
-}
-
-canvas.addEventListener('mousemove', (event: MouseEvent) => {
-    if (!dragging) return;
-    updateTranslate(event.x, event.y);
-});
+let lastFingerDistance = 0;
 
 canvas.addEventListener('touchstart', (event: TouchEvent) => {
-    if (event.touches.length === 1) {
-        const touch = event.touches[0];
-        lastDragPos = new THREE.Vector2(touch.clientX / window.innerWidth, touch.clientY / window.innerHeight);
+    if (event.touches.length === 2) {
+        event.preventDefault();
+        lastFingerDistance = getDistanceBetweenTouches(event.touches[0], event.touches[1]);
     }
 });
 
 canvas.addEventListener('touchmove', (event: TouchEvent) => {
-    if (event.touches.length === 1) {
-        const touch = event.touches[0];
-        updateTranslate(touch.clientX, touch.clientY);
+    if (event.touches.length === 2) {
+        event.preventDefault(); // Prevent default pinch behavior like browser zoom
+        const currentDistance = getDistanceBetweenTouches(event.touches[0], event.touches[1]);
+
+        const deltaDistance = currentDistance - lastFingerDistance;
+        scrollTarget += deltaDistance * -SCROLL_SPEED;
+        lastFingerDistance = currentDistance;
     }
 });
 
-const gui = new GUI()
-const iterationParams = gui.addFolder('Iteration Parameters')
-iterationParams.add(uniforms.u_iterations, 'value', 1, 100).name('Iterations');
-iterationParams.add(uniforms.u_tolerance, 'value', 0.0001, 1).name('Tolerance');
-iterationParams.open()
-// TODO: color parameters
-// const customizationParams = gui.addFolder('Customization')
-// customizationParams.add(uniforms.u_resolution.value, 'x', 1, 1920).name('Resolution X');
-// customizationParams.open()
-
-const stats = new Stats()
-document.body.appendChild(stats.dom)
+const stats = createGUI(uniforms);
 
 function animate() {
     requestAnimationFrame(animate);
