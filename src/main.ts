@@ -40,6 +40,7 @@ let uniforms = {
     u_time: {value: 0.0},
     u_iterations: {value: 50},
     u_tolerance: {value: 0.001},
+    u_mode: {value: 0},
 }
 
 const material = new THREE.ShaderMaterial({
@@ -49,7 +50,6 @@ const material = new THREE.ShaderMaterial({
 });
 
 const geometry = new THREE.PlaneGeometry(2, 2);
-
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
@@ -94,7 +94,7 @@ function animate() {
     uniforms.u_time.value += TIME_SPEED;
     uniforms.u_scroll.value += (scrollTarget - uniforms.u_scroll.value) * LERP_FACTOR;
     composer.render();
-    stats.update()
+    stats.update();
 }
 
 animate();
