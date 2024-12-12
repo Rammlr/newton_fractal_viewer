@@ -1,6 +1,9 @@
 precision highp float;
 
 uniform vec2 u_resolution;
+uniform float u_scroll;
+uniform vec2 u_translate;
+uniform float u_time;
 
 float mandelbrot(vec2 c) {
     float alpha = 1.0;
@@ -11,7 +14,7 @@ float mandelbrot(vec2 c) {
         vec2 z_sq = vec2(x_sq - y_sq, 2.0 * z.x * z.y); // complex square
         z = z_sq + c;
         if (x_sq + y_sq > 4.0) {
-            alpha = float(i) / 200.0;
+            alpha = float(i) / 250.0;
             break;
         }
     }
@@ -26,9 +29,13 @@ float draw_rectangle(vec2 st) {
 void main() {
     vec2 st = gl_FragCoord.xy / u_resolution;
     st -= 0.5;
-    st *= 3.0;
+    float zoom_factor = exp(u_scroll);
+    st *= zoom_factor;
+    st += u_translate;
 
     float pct = mandelbrot(st);
 
-    gl_FragColor = vec4(vec3(pct), 1.0);
+    vec3 color = mix(vec3(1.0), vec3(0.0, 0.0, 0.6), pct);
+
+    gl_FragColor = vec4(color, 1.0);
 }
