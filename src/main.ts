@@ -3,6 +3,9 @@ import fragmentShader from './shaders/newton_hardcoded.frag';
 import vertexShader from './shaders/shader.vert';
 import {createGUI} from "./gui.ts";
 import {addControls, getDistanceBetweenTouches} from "./controls.ts";
+import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass.js';
+import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer.js";
+import {UnrealBloomPass} from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
 const TIME_SPEED = 0.05;
 const SCROLL_SPEED = 0.005;
@@ -19,6 +22,16 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 const canvas = renderer.domElement;
 document.body.appendChild(canvas);
+
+const renderPass = new RenderPass(scene, camera);
+const composer = new EffectComposer(renderer);
+composer.addPass(renderPass);
+
+const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.01, 0.01, 0.2
+);
+composer.addPass(bloomPass);
 
 let uniforms = {
     u_resolution: {value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
@@ -74,13 +87,13 @@ canvas.addEventListener('touchmove', (event: TouchEvent) => {
     }
 });
 
-const stats = createGUI(uniforms);
+const stats = createGUI(uniforms, bloomPass);
 
 function animate() {
     requestAnimationFrame(animate);
     uniforms.u_time.value += TIME_SPEED;
     uniforms.u_scroll.value += (scrollTarget - uniforms.u_scroll.value) * LERP_FACTOR;
-    renderer.render(scene, camera);
+    composer.render();
     stats.update()
 }
 

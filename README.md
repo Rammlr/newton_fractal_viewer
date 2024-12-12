@@ -12,12 +12,14 @@ Still **WIP** so lots of features to come.
 - **Hardcoded Newton Fractal** 🌀
 - **Customizable Iteration Parameters** 📊
 - **Mobile Support** 📱
+- **Post Processing Effects** 🎨
 
 ### 📝 **Planned**
 
 - **More Customizable Parameters such as**:
     - Color schemes 🌈
     - polynomial functions ➗.
+- **More Post Processing Effects**
 
 ## 🚀 **Usage** 🚀
 
