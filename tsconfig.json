@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "types": [
+      "vite-plugin-glsl/ext"
+    ],
+
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
