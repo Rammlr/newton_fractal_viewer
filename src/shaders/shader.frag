@@ -5,6 +5,8 @@ uniform float u_scroll;
 uniform vec2 u_translate;
 uniform float u_time;
 
+// NOTE: this is mostly for testing purposes now as i want to create a newton fractal instead
+// also not very numerically stable
 float mandelbrot(vec2 c) {
     float alpha = 1.0;
     vec2 z = vec2(0.0, 0.0);
@@ -19,11 +21,6 @@ float mandelbrot(vec2 c) {
         }
     }
     return alpha;
-}
-
-float draw_rectangle(vec2 st) {
-    vec2 bl = step(vec2(0.1), st);
-    return bl.x * bl.y;
 }
 
 void main() {
