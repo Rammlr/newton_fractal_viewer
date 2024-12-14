@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "dat.gui": "^0.7.9",
+    "durand-kerner": "^1.0.0",
     "three": "^0.171.0"
   }
 }

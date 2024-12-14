@@ -1,9 +1,8 @@
 # 🌟 **Newton Fractal Viewer** 🌟
 
 A THREE.js based fractal viewer for rendering Newton fractals in real-time.
-Still **WIP** so lots of features to come.
 
-![newton_fractal_demo.gif](newton_fractal_demo.gif)
+![newton_fractal_demo_new.gif](newton_fractal_demo_new.gif)
 
 ## 🛠️ **Features** 🛠️
 
@@ -11,17 +10,29 @@ Still **WIP** so lots of features to come.
 
 - **Interactive Zooming and Panning**🔎
 - **Real-Time Rendering** 🚀
-- **Hardcoded Newton Fractal** 🌀
-- **Customizable Iteration Parameters** 📊
+- **Customization**:
+    - **Polynomials** ➗
+    - **Coloring** 🎨
+    - **Iterations Parameters** 🔁
 - **Mobile Support** 📱
 - **Post Processing Effects** 🎨
 
 ### 📝 **Planned**
 
-- **More Customizable Parameters such as**:
-    - Color schemes 🌈
-    - polynomial functions ➗.
 - **More Post Processing Effects**
+
+## 🤔 How does it work? 🤔
+
+https://en.wikipedia.org/wiki/Newton_fractal
+
+Once a polynomial is entered, we automatically calculate the derivative and the roots (via Durand-Kerner iteration) of
+the polynomial.
+We then render the fractal by iterating over each pixel and applying Newton's method to find the root that the pixel
+converges to.
+We then color the pixel based on the root that it converges to.
+
+This is a short summary since i could not be bothered to write up more for the readme but feel free to contact me if you
+have any questions.
 
 ## 🚀 **Usage** 🚀
 
