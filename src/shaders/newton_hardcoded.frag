@@ -1,7 +1,7 @@
 #define cmul(a, b) vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x)
 #define conjugate(a) vec2(a.x, - a.y)
 #define cdiv(a, b) vec2(((a.x * b.x + a.y * b.y) / (b.x * b.x + b.y * b.y)), ((a.y * b.x - a.x * b.y) / (b.x * b.x + b.y * b.y)))
-
+// NOTE: these are not optimized as this file is no longer in use
 precision highp float;
 
 uniform vec2 u_resolution;

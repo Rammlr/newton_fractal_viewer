@@ -1,9 +1,7 @@
-#define cmul(a, b) vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x)
 #define conjugate(a) vec2(a.x, - a.y)
-#define cdiv(a, b) vec2(((a.x * b.x + a.y * b.y) / (b.x * b.x + b.y * b.y)), ((a.y * b.x - a.x * b.y) / (b.x * b.x + b.y * b.y)))
 #define MAX_DEGREE 10
 
-precision highp float;
+precision mediump float;
 
 uniform vec2 u_resolution;
 uniform float u_scroll;
@@ -17,12 +15,28 @@ uniform vec3[MAX_DEGREE] u_colors;
 uniform float[MAX_DEGREE] u_derivative;
 uniform vec2[MAX_DEGREE] u_roots;
 
-vec2 cpow(vec2 z, int n) {
-    vec2 result = vec2(1.0, 0.0);
-    for (int i = 0; i < n; i++) {
-        result = cmul(result, z);
-    }
-    return result;
+vec2 cmul(vec2 a, vec2 b) {
+    return vec2(a.x * b.x - a.y * b.y, dot(a.xy, b.yx));
+}
+
+vec2 cdiv(vec2 a, vec2 b) {
+    float bdot = dot(b, b);
+    return vec2(dot(a, b) / bdot, (a.y * b.x - a.x * b.y) / bdot);
+}
+
+// Efficient Complex power
+// Let z = r(cos θ + i sin θ)
+// Then z^n = r^n (cos nθ + i sin nθ)
+vec2 cpow(vec2 a, float n) {
+    float angle = atan(a.y, a.x);
+    float r = length(a);
+    float real = pow(r, n) * cos(n*angle);
+    float im = pow(r, n) * sin(n*angle);
+    return vec2(real, im);
+}
+
+vec2 cpow(vec2 a, int n) {
+    return cpow(a, float(n));
 }
 
 // evaluate the polynomial at z
@@ -49,10 +63,9 @@ vec3 newton_fractal(vec2 z) {
     for (int i = 0; i < u_iterations; i++) {
         z -= cdiv(p(z), dp(z));
         for (int i = 0; i < u_degree; i++) {
-            vec2 difference = z - u_roots[i];
-            if (length(difference) < u_tolerance)
+            if (length(z - u_roots[i]) < u_tolerance)
             {
-                return u_colors[i]; // brightness depending on convergence speed
+                return u_colors[i];
                 //                return u_colors[i] * (1. - float(i) / float(u_iterations)); // brightness depending on convergence speed
             }
         }
